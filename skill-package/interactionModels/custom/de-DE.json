@@ -1,7 +1,7 @@
 {
   "interactionModel": {
     "languageModel": {
-      "invocationName": "galaxy teacher",
+      "invocationName": "cosmic teacher",
       "intents": [
         {
           "name": "ChatIntent",
