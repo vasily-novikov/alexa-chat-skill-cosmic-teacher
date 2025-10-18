@@ -19,7 +19,7 @@ MAX_INPUT_CHARS = 1500
 # === Utility helpers ===
 def with_voice(text):
     """Wrap text with SSML voice tag."""
-    return f'<voice name="Hans"><prosody pitch='x-low'>{text}</prosody></voice>'
+    return f'<voice name="Hans"><prosody pitch="x-low">{text}</prosody></voice>'
 def trim_text(text, limit=MAX_INPUT_CHARS):
     """Trim text to a safe length without cutting words mid-way."""
     text = re.sub(r"\s+", " ", text.strip())
