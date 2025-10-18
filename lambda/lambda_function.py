@@ -87,8 +87,9 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return handler_input.request_envelope.request.object_type == "LaunchRequest"
 
     def handle(self, handler_input):
-        speak = with_voice("Grüße dich, Ivan! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
-        return handler_input.response_builder.speak(speak).ask(speak).response
+        speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
+        reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
+        return handler_input.response_builder.speak(speak).ask(reprompt).response
 
 
 class ChatIntentHandler(AbstractRequestHandler):
@@ -145,12 +146,23 @@ class CancelOrStopHandler(AbstractRequestHandler):
         ).response
 
 
+class SessionEndedRequestHandler(AbstractRequestHandler):
+    """Handler for Session End."""
+    def can_handle(self, handler_input):
+        return handler_input.request_envelope.request.object_type == "SessionEndedRequest"
+
+    def handle(self, handler_input):
+        # Clean up session data if needed
+        return handler_input.response_builder.response
+
+
 # === Skill Builder ===
 sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(ChatIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopHandler())
+sb.add_request_handler(SessionEndedRequestHandler())
 
 lambda_handler = sb.lambda_handler()
 handler = lambda_handler  # Alias for Alexa-hosted skills
