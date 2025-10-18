@@ -9,8 +9,8 @@ from ask_sdk_model import Response
 
 # === Configuration ===
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-OPENAI_URL = "https://api.openai.com/v1/responses"
-MODEL = "o4-mini"
+OPENAI_URL = "https://api.openai.com/v1/chat/completions"
+MODEL = "gpt-4o-mini"
 VOICE_NAME = "Hans"  # Alexa voice for responses
 
 # ~500 tokens = ~1500 characters. Keep total request small and cheap.
@@ -34,18 +34,23 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
     context = trim_text(context)
 
     # --- Short, motivational system prompt ---
-    full_prompt = (
+    system_message = (
         "You are Yoda, a friendly chat partner for a 13-year-old boy. "
         "Keep replies short, natural, and positive. "
         "Encourage him to talk more and ask brief follow-up questions. "
-        "Sound warm and curious, not like a teacher. "
-        f"Chat so far: {context}\nBoy says: {prompt}"
+        "Sound warm and curious, not like a teacher."
     )
+    
+    user_message = f"Chat so far: {context}\nBoy says: {prompt}" if context else prompt
 
     data = {
         "model": MODEL,
-        "input": full_prompt,
-        "max_output_tokens": 80,  # short spoken replies (~40 words)
+        "messages": [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_message}
+        ],
+        "max_tokens": 80,  # short spoken replies (~40 words)
+        "temperature": 0.7
     }
 
     headers = {
@@ -59,24 +64,17 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
         j = res.json()
     except Exception as e:
         print("OpenAI API error:", e)
-        return "Sorry, I couldn’t reach the AI service right now.", 0
+        return "Sorry, I couldn't reach the AI service right now.", 0
 
     # --- Extract text safely ---
     reply = ""
+    total_tokens = 0
     try:
-        if "output" in j and isinstance(j["output"], list):
-            for o in j["output"]:
-                if isinstance(o, dict) and "content" in o:
-                    content = o["content"]
-                    if isinstance(content, list):
-                        for sub in content:
-                            if "text" in sub:
-                                reply += sub["text"] + " "
-                    elif isinstance(content, str):
-                        reply += content + " "
-        elif "output_text" in j:
-            reply = j["output_text"]
-        reply = reply.strip() or "Hmm, I’m not sure what to say right now."
+        if "choices" in j and len(j["choices"]) > 0:
+            reply = j["choices"][0]["message"]["content"].strip()
+        if "usage" in j and "total_tokens" in j["usage"]:
+            total_tokens = j["usage"]["total_tokens"]
+        reply = reply or "Hmm, I'm not sure what to say right now."
     except Exception as e:
         print("Parse error:", e)
         reply = "Sorry, something went wrong with the reply."
