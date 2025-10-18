@@ -11,9 +11,11 @@
         }
       },
       "skillInfrastructure": {
-        "type": "@ask-cli/hosted-skill-deployer",
+        "type": "@ask-cli/lambda-deployer",
         "userConfig": {
-          "runtime": "PYTHON_3_8"
+          "runtime": "python3.12",
+          "handler": "lambda_function.handler",
+          "awsRegion": "eu-west-1"
         }
       }
     }
