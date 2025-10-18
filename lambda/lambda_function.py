@@ -89,7 +89,11 @@ class LaunchRequestHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
         reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
-        return handler_input.response_builder.speak(speak).ask(reprompt).response
+        print(f"Launch: speak={speak}")
+        print(f"Launch: reprompt={reprompt}")
+        response = handler_input.response_builder.speak(speak).ask(reprompt).response
+        print(f"Launch response: {response}")
+        return response
 
 
 class ChatIntentHandler(AbstractRequestHandler):
