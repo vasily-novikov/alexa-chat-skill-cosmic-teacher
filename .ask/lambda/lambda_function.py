@@ -3,7 +3,7 @@ import re
 import json
 import requests
 from ask_sdk_core.skill_builder import SkillBuilder
-from ask_sdk_core.dispatch_components import AbstractRequestHandler, AbstractExceptionHandler
+from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_model import Response
 
@@ -11,11 +11,15 @@ from ask_sdk_model import Response
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 MODEL = "gpt-4o-mini"
+VOICE_NAME = "Hans"  # Alexa voice for responses
 
 # ~500 tokens = ~1500 characters. Keep total request small and cheap.
 MAX_INPUT_CHARS = 1500
 
 # === Utility helpers ===
+def with_voice(text):
+    """Wrap text with SSML prosody tag for deeper voice."""
+    return f'<prosody pitch="x-low">{text}</prosody>'
 def trim_text(text, limit=MAX_INPUT_CHARS):
     """Trim text to a safe length without cutting words mid-way."""
     text = re.sub(r"\s+", " ", text.strip())
@@ -24,7 +28,7 @@ def trim_text(text, limit=MAX_INPUT_CHARS):
     return text[:limit].rsplit(" ", 1)[0] + "..."
 
 # === Core OpenAI call ===
-def call_openai(prompt: str, context: str = ""):
+def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
     """Send prompt to OpenAI and return reply + total token estimate."""
     prompt = trim_text(prompt)
     context = trim_text(context)
@@ -83,13 +87,8 @@ class LaunchRequestHandler(AbstractRequestHandler):
         return handler_input.request_envelope.request.object_type == "LaunchRequest"
 
     def handle(self, handler_input):
-        speak = "Hallo! Yoda ich bin, dein Chat-Kumpel. Worüber möchtest du sprechen?"
-        return (
-            handler_input.response_builder
-            .speak(speak)
-            .ask(speak)
-            .response
-        )
+        speak = with_voice("Grüße dich, Ivan! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
+        return handler_input.response_builder.speak(speak).ask(speak).response
 
 
 class ChatIntentHandler(AbstractRequestHandler):
@@ -98,31 +97,28 @@ class ChatIntentHandler(AbstractRequestHandler):
         return req.object_type == "IntentRequest" and req.intent.name == "ChatIntent"
 
     def handle(self, handler_input):
-        # Get user's utterance from slot
         slots = handler_input.request_envelope.request.intent.slots
-        user_text = slots.get("utterance").value if slots.get("utterance") else ""
-        
+        user_text = slots["utterance"].value if "utterance" in slots and slots["utterance"].value else ""
         if not user_text:
-            speak = "Hmm, nichts gehört habe ich. Noch einmal versuchen kannst du?"
-            return handler_input.response_builder.speak(speak).ask(speak).response
-        
-        # Get conversation context from session
-        session_attr = handler_input.attributes_manager.session_attributes
-        context = session_attr.get("context", "")
-        
-        # Call OpenAI
-        reply, tokens = call_openai(user_text, context)
-        
-        # Update context for next turn
-        new_context = f"{context}\nUser: {user_text}\nYoda: {reply}"
-        session_attr["context"] = trim_text(new_context, limit=500)
-        
-        return (
-            handler_input.response_builder
-            .speak(reply)
-            .ask("Was noch sagen möchtest du?")
-            .response
-        )
+            msg = with_voice("Verstanden, ich habe nicht. Wiederholen, du kannst?")
+            return handler_input.response_builder.speak(msg).ask(msg).response
+
+        # Load short context
+        session = handler_input.attributes_manager.session_attributes
+        history = session.get("conversation_history", [])
+        context = " ".join(history[-3:])  # last 3 turns for continuity
+
+        ai_reply, token_count = call_openai(user_text, context)
+
+        # Save for next turn
+        history.append(f"User: {user_text}")
+        history.append(f"AI: {ai_reply}")
+        session["conversation_history"] = history[-6:]
+        handler_input.attributes_manager.session_attributes = session
+
+        return handler_input.response_builder.speak(
+            with_voice(ai_reply)
+        ).ask(with_voice("Weiter reden, du möchtest?")).response
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -131,57 +127,31 @@ class HelpIntentHandler(AbstractRequestHandler):
         return req.object_type == "IntentRequest" and req.intent.name == "AMAZON.HelpIntent"
 
     def handle(self, handler_input):
-        speak = "Ich bin Yoda, dein Chat-Partner. Einfach erzähle mir, was du möchtest!"
+        speak = with_voice("Über alles reden, mit mir du kannst — Spiele, Schule, Ideen. Hmm!")
         return handler_input.response_builder.speak(speak).ask(speak).response
 
 
-class CancelOrStopIntentHandler(AbstractRequestHandler):
+class CancelOrStopHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
-        return (req.object_type == "IntentRequest" and 
-                req.intent.name in ["AMAZON.CancelIntent", "AMAZON.StopIntent"])
+        return req.object_type == "IntentRequest" and req.intent.name in [
+            "AMAZON.CancelIntent",
+            "AMAZON.StopIntent",
+        ]
 
     def handle(self, handler_input):
-        speak = "Auf Wiedersehen! Bald sprechen wir wieder."
-        return handler_input.response_builder.speak(speak).response
+        return handler_input.response_builder.speak(
+            with_voice("Gehen du musst. Auf Wiedersehen, junger Padawan!")
+        ).response
 
 
-class SessionEndedRequestHandler(AbstractRequestHandler):
-    def can_handle(self, handler_input):
-        return handler_input.request_envelope.request.object_type == "SessionEndedRequest"
-
-    def handle(self, handler_input):
-        # Cleanup session
-        return handler_input.response_builder.response
-
-
-class CatchAllExceptionHandler(AbstractExceptionHandler):
-    def can_handle(self, handler_input, exception):
-        return True
-
-    def handle(self, handler_input, exception):
-        print(f"Exception: {exception}")
-        speak = "Entschuldigung, ein Fehler ist aufgetreten. Bitte versuche es noch einmal."
-        return (
-            handler_input.response_builder
-            .speak(speak)
-            .ask(speak)
-            .response
-        )
-
-
-# The SkillBuilder object acts as the entry point for your skill, routing all request and response
-# payloads to the handlers above. Make sure any new handlers or interceptors you've
-# defined are included below. The order matters - they're processed top to bottom.
-
+# === Skill Builder ===
 sb = SkillBuilder()
-
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(ChatIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
-sb.add_request_handler(CancelOrStopIntentHandler())
-sb.add_request_handler(SessionEndedRequestHandler())
+sb.add_request_handler(CancelOrStopHandler())
 
-sb.add_exception_handler(CatchAllExceptionHandler())
+lambda_handler = sb.lambda_handler()
+handler = lambda_handler  # Alias for Alexa-hosted skills
 
-handler = sb.lambda_handler()
