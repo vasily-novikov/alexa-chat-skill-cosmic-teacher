@@ -1,0 +1,14 @@
+{
+  "askcliStatesVersion": "2020-03-31",
+  "profiles": {
+    "default": {
+      "deploymentStatus": "IN_PROGRESS",
+      "skillMetadata": {
+        "lastImportId": "amzn1.ask-package.import.6e5e4d0b-ae9a-46a2-8545-35eee37e6485",
+        "lastImportTimestamp": "2025-10-18T06:44:20.476Z",
+        "lastDeployHash": "pemvAV1aS+XRena1KtMV9tXvKgM="
+      },
+      "skillId": "amzn1.ask.skill.4b505ffb-e0ce-4a95-beb0-49d64eeaf320"
+    }
+  }
+}

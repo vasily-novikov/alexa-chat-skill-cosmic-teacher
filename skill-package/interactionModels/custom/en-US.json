@@ -13,8 +13,7 @@
           ],
           "samples": [
             "tell me {utterance}",
-            "I want to say {utterance}",
-            "{utterance}"
+            "I want to say {utterance}"
           ]
         },
         {
