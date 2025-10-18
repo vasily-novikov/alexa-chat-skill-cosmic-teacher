@@ -6,16 +6,37 @@ from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler, AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
 from ask_sdk_model import Response
+from ask_sdk_model.interfaces.alexa.presentation.apla import RenderDocumentDirective
+from ask_sdk_model.interfaces.alexa.presentation.apla import RuntimeError as AplaRuntimeError
 
 # === Configuration ===
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 MODEL = "gpt-4o-mini"
+VOICE_NAME = "Hans"  # German male voice
 
 # ~500 tokens = ~1500 characters. Keep total request small and cheap.
 MAX_INPUT_CHARS = 1500
 
 # === Utility helpers ===
+def add_voice_to_response(response, voice_name=VOICE_NAME):
+    """Add voice parameter to outputSpeech in response."""
+    if hasattr(response, 'to_dict'):
+        response_dict = response.to_dict()
+    else:
+        response_dict = response
+    
+    # Add voice to outputSpeech
+    if 'response' in response_dict and 'output_speech' in response_dict['response']:
+        response_dict['response']['output_speech']['voice'] = voice_name
+    
+    # Add voice to reprompt if exists
+    if 'response' in response_dict and 'reprompt' in response_dict['response']:
+        if 'output_speech' in response_dict['response']['reprompt']:
+            response_dict['response']['reprompt']['output_speech']['voice'] = voice_name
+    
+    return response_dict
+
 def trim_text(text, limit=MAX_INPUT_CHARS):
     """Trim text to a safe length without cutting words mid-way."""
     text = re.sub(r"\s+", " ", text.strip())
@@ -84,12 +105,13 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         speak = "Hallo! Yoda ich bin, dein Chat-Kumpel. Worüber möchtest du sprechen?"
-        return (
+        response = (
             handler_input.response_builder
             .speak(speak)
             .ask(speak)
             .response
         )
+        return add_voice_to_response(response)
 
 
 class ChatIntentHandler(AbstractRequestHandler):
@@ -104,7 +126,8 @@ class ChatIntentHandler(AbstractRequestHandler):
         
         if not user_text:
             speak = "Hmm, nichts gehört habe ich. Noch einmal versuchen kannst du?"
-            return handler_input.response_builder.speak(speak).ask(speak).response
+            response = handler_input.response_builder.speak(speak).ask(speak).response
+            return add_voice_to_response(response)
         
         # Get conversation context from session
         session_attr = handler_input.attributes_manager.session_attributes
@@ -117,12 +140,13 @@ class ChatIntentHandler(AbstractRequestHandler):
         new_context = f"{context}\nUser: {user_text}\nYoda: {reply}"
         session_attr["context"] = trim_text(new_context, limit=500)
         
-        return (
+        response = (
             handler_input.response_builder
             .speak(reply)
             .ask("Was noch sagen möchtest du?")
             .response
         )
+        return add_voice_to_response(response)
 
 
 class HelpIntentHandler(AbstractRequestHandler):
@@ -132,7 +156,8 @@ class HelpIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         speak = "Ich bin Yoda, dein Chat-Partner. Einfach erzähle mir, was du möchtest!"
-        return handler_input.response_builder.speak(speak).ask(speak).response
+        response = handler_input.response_builder.speak(speak).ask(speak).response
+        return add_voice_to_response(response)
 
 
 class CancelOrStopIntentHandler(AbstractRequestHandler):
@@ -143,7 +168,8 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         speak = "Auf Wiedersehen! Bald sprechen wir wieder."
-        return handler_input.response_builder.speak(speak).response
+        response = handler_input.response_builder.speak(speak).response
+        return add_voice_to_response(response)
 
 
 class SessionEndedRequestHandler(AbstractRequestHandler):
@@ -162,12 +188,13 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
     def handle(self, handler_input, exception):
         print(f"Exception: {exception}")
         speak = "Entschuldigung, ein Fehler ist aufgetreten. Bitte versuche es noch einmal."
-        return (
+        response = (
             handler_input.response_builder
             .speak(speak)
             .ask(speak)
             .response
         )
+        return add_voice_to_response(response)
 
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
