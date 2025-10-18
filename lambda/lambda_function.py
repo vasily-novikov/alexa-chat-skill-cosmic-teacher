@@ -153,4 +153,5 @@ sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopHandler())
 
 lambda_handler = sb.lambda_handler()
+handler = lambda_handler  # Alias for Alexa-hosted skills
 
