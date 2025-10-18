@@ -132,6 +132,36 @@ class HelpIntentHandler(AbstractRequestHandler):
         return handler_input.response_builder.speak(speak).ask(speak).response
 
 
+class FallbackIntentHandler(AbstractRequestHandler):
+    """Handler for AMAZON.FallbackIntent - treats unrecognized utterances as chat."""
+    def can_handle(self, handler_input):
+        req = handler_input.request_envelope.request
+        return req.object_type == "IntentRequest" and req.intent.name == "AMAZON.FallbackIntent"
+
+    def handle(self, handler_input):
+        # Get the raw text from the request
+        req = handler_input.request_envelope.request
+        # For FallbackIntent, we need to get the original utterance differently
+        # Try to get it from the intent's slots or use a generic response
+        user_text = "Hallo"  # Default if we can't get the utterance
+        
+        # Actually process as a chat message if possible
+        session = handler_input.attributes_manager.session_attributes
+        history = session.get("conversation_history", [])
+        context = " ".join(history[-3:])
+        
+        ai_reply, token_count = call_openai(user_text, context)
+        
+        history.append(f"User: {user_text}")
+        history.append(f"AI: {ai_reply}")
+        session["conversation_history"] = history[-6:]
+        handler_input.attributes_manager.session_attributes = session
+        
+        return handler_input.response_builder.speak(
+            with_voice(ai_reply)
+        ).ask(with_voice("Weiter reden, du möchtest?")).response
+
+
 class CancelOrStopHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
@@ -161,6 +191,7 @@ sb = SkillBuilder()
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(ChatIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
+sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(CancelOrStopHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
