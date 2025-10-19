@@ -12,8 +12,8 @@
             "default": {
               "lambda": {
                 "arn": "arn:aws:lambda:eu-west-1:387444652013:function:ask-cosmicteacher-default-default-1760781713991",
-                "lastModified": "2025-10-19T08:04:48.000+0000",
-                "revisionId": "467af4a4-1c82-4d0d-b319-2b4ffb19d478"
+                "lastModified": "2025-10-19T08:37:09.000+0000",
+                "revisionId": "38ae3f45-e284-4670-94fe-000620ecfee7"
               },
               "iamRole": "arn:aws:iam::387444652013:role/ask-lambda-CosmicTeacher-1760781713205"
             }
@@ -22,16 +22,16 @@
       },
       "deploymentStatus": "COMPLETE",
       "skillMetadata": {
-        "lastImportId": "amzn1.ask-package.import.c35af7fa-ceed-4c95-80c7-02cf8188b180",
-        "lastImportTimestamp": "2025-10-19T08:28:34.412Z",
-        "lastDeployHash": "bMPD3lX08J/1kJ8zD6yP+Muvba0=",
+        "lastImportId": "amzn1.ask-package.import.a1584377-32dc-47a7-aa13-0de69205d66f",
+        "lastImportTimestamp": "2025-10-19T08:39:40.199Z",
+        "lastDeployHash": "X+/OD0/ulQgdsXxrv6HZ1ehBsYU=",
         "lastDeployType": "interaction-model"
       },
       "code": {
         "default": {
-          "lastDeployHash": "1MJBsS8LMmtKoYhGHu9LFnvAQJs="
+          "lastDeployHash": "lJiRO2VFBZZ5Nn/WxEASSoNdKcI="
         },
-        "lastDeployTimestamp": "2025-10-19T08:04:49.522Z"
+        "lastDeployTimestamp": "2025-10-19T08:37:11.207Z"
       }
     }
   }

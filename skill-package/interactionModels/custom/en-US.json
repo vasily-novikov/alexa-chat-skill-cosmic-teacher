@@ -19,7 +19,16 @@
             "can you hear {utterance}",
             "listen to this {utterance}",
             "here is {utterance}",
-            "{utterance} please"
+            "{utterance} please",
+            "what about {utterance}",
+            "how about {utterance}",
+            "let me tell you {utterance}",
+            "I think {utterance}",
+            "my question is {utterance}",
+            "I wonder {utterance}",
+            "tell me about {utterance}",
+            "explain {utterance}",
+            "what is {utterance}"
           ]
         },
         {

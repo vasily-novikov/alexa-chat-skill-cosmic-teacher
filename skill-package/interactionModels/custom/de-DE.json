@@ -13,7 +13,16 @@
           ],
           "samples": [
             "sag mir {utterance}",
-            "ich will sagen {utterance}"
+            "ich will sagen {utterance}",
+            "ich sage {utterance}",
+            "erzähl mir {utterance}",
+            "wie wäre es mit {utterance}",
+            "was ist mit {utterance}",
+            "ich denke {utterance}",
+            "meine Frage ist {utterance}",
+            "erkläre {utterance}",
+            "was ist {utterance}",
+            "{utterance} bitte"
           ]
         },
         {

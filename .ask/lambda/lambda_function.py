@@ -90,8 +90,16 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         print("LaunchRequestHandler.handle called")
-        speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
-        reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
+        locale = handler_input.request_envelope.request.locale
+        print(f"Locale: {locale}")
+        
+        if locale.startswith('de'):
+            speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
+            reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
+        else:
+            speak = with_voice("Greetings! Yoda I am, your chat buddy. Tell me something, you will?")
+            reprompt = with_voice("Speak to me, you can. What talk about, you wish?")
+        
         print(f"Launch: speak={speak}")
         print(f"Launch: reprompt={reprompt}")
         response = handler_input.response_builder.speak(speak).ask(reprompt).response
