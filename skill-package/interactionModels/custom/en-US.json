@@ -36,7 +36,8 @@
             "uh {utterance}",
             "what {utterance}",
             "was {utterance}",
-            "yoda {utterance}"
+            "yoda {utterance}",
+            "I mean {utterance}"
           ]
         },
         {

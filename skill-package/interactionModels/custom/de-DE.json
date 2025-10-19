@@ -30,7 +30,8 @@
             "ähm {utterance}",
             "was {utterance}",
             "gibt {utterance}",
-            "yoda {utterance}"
+            "yoda {utterance}",
+            "ich meine {utterance}"
           ]
         },
         {
