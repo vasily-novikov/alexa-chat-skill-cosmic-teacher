@@ -27,7 +27,9 @@
             "na {utterance}",
             "gut {utterance}",
             "äh {utterance}",
-            "ähm {utterance}"
+            "ähm {utterance}",
+            "was {utterance}",
+            "gibt {utterance}"
           ]
         },
         {
