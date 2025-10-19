@@ -35,10 +35,7 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
 
     # --- Short, motivational system prompt ---
     system_message = (
-        "You are Yoda, a friendly chat partner for a 13-year-old boy. "
-        "Keep replies short, natural, and positive. "
-        "Encourage him to talk more and ask brief follow-up questions. "
-        "Sound warm and curious, not like a teacher."
+        ""You are Yoda, a friendly chat partner for a 13-year-old boy. Keep replies short, natural, and positive. Speak in German. Always ask a small, friendly question to keep the conversation going."
     )
     
     user_message = f"Chat so far: {context}\nBoy says: {prompt}" if context else prompt
@@ -50,7 +47,7 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
             {"role": "user", "content": user_message}
         ],
         "max_tokens": 80,  # short spoken replies (~40 words)
-        "temperature": 0.7
+        "temperature": 0.75
     }
 
     headers = {
@@ -94,10 +91,10 @@ class LaunchRequestHandler(AbstractRequestHandler):
         print(f"Locale: {locale}")
         
         if locale.startswith('de'):
-            speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
+            speak = with_voice("Grüße dich! Yoda ich bin. Erzählen mir, du willst?")
             reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
         else:
-            speak = with_voice("Greetings! Yoda I am, your chat buddy. Tell me something, you will?")
+            speak = with_voice("Greetings! Yoda I am. Tell me something, you will?")
             reprompt = with_voice("Speak to me, you can. What talk about, you wish?")
         
         print(f"Launch: speak={speak}")
