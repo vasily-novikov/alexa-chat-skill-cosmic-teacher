@@ -35,7 +35,8 @@
             "um {utterance}",
             "uh {utterance}",
             "what {utterance}",
-            "was {utterance}"
+            "was {utterance}",
+            "yoda {utterance}"
           ]
         },
         {
