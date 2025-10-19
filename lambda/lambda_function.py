@@ -84,9 +84,12 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
 # === Alexa Handlers ===
 class LaunchRequestHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
-        return handler_input.request_envelope.request.object_type == "LaunchRequest"
+        can = handler_input.request_envelope.request.object_type == "LaunchRequest"
+        print(f"LaunchRequestHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("LaunchRequestHandler.handle called")
         speak = with_voice("Grüße dich! Yoda ich bin, dein Chat-Kumpel. Erzählen mir, du willst?")
         reprompt = with_voice("Erzählen mir etwas, du kannst. Worüber reden möchtest du?")
         print(f"Launch: speak={speak}")
@@ -99,11 +102,15 @@ class LaunchRequestHandler(AbstractRequestHandler):
 class ChatIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
-        return req.object_type == "IntentRequest" and req.intent.name == "ChatIntent"
+        can = req.object_type == "IntentRequest" and req.intent.name == "ChatIntent"
+        print(f"ChatIntentHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("ChatIntentHandler.handle called")
         slots = handler_input.request_envelope.request.intent.slots
         user_text = slots["utterance"].value if "utterance" in slots and slots["utterance"].value else ""
+        print(f"ChatIntent utterance: {user_text}")
         if not user_text:
             msg = with_voice("Verstanden, ich habe nicht. Wiederholen, du kannst?")
             return handler_input.response_builder.speak(msg).ask(msg).response
@@ -129,9 +136,12 @@ class ChatIntentHandler(AbstractRequestHandler):
 class HelpIntentHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
-        return req.object_type == "IntentRequest" and req.intent.name == "AMAZON.HelpIntent"
+        can = req.object_type == "IntentRequest" and req.intent.name == "AMAZON.HelpIntent"
+        print(f"HelpIntentHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("HelpIntentHandler.handle called")
         speak = with_voice("Über alles reden, mit mir du kannst — Spiele, Schule, Ideen. Hmm!")
         return handler_input.response_builder.speak(speak).ask(speak).response
 
@@ -140,9 +150,12 @@ class FallbackIntentHandler(AbstractRequestHandler):
     """Handler for AMAZON.FallbackIntent - treats unrecognized utterances as chat."""
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
-        return req.object_type == "IntentRequest" and req.intent.name == "AMAZON.FallbackIntent"
+        can = req.object_type == "IntentRequest" and req.intent.name == "AMAZON.FallbackIntent"
+        print(f"FallbackIntentHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("FallbackIntentHandler.handle called")
         # Get the raw text from the request
         req = handler_input.request_envelope.request
         # For FallbackIntent, we need to get the original utterance differently
@@ -169,12 +182,15 @@ class FallbackIntentHandler(AbstractRequestHandler):
 class CancelOrStopHandler(AbstractRequestHandler):
     def can_handle(self, handler_input):
         req = handler_input.request_envelope.request
-        return req.object_type == "IntentRequest" and req.intent.name in [
+        can = req.object_type == "IntentRequest" and req.intent.name in [
             "AMAZON.CancelIntent",
             "AMAZON.StopIntent",
         ]
+        print(f"CancelOrStopHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("CancelOrStopHandler.handle called")
         return handler_input.response_builder.speak(
             with_voice("Gehen du musst. Auf Wiedersehen, junger Padawan!")
         ).response
@@ -183,9 +199,15 @@ class CancelOrStopHandler(AbstractRequestHandler):
 class SessionEndedRequestHandler(AbstractRequestHandler):
     """Handler for Session End."""
     def can_handle(self, handler_input):
-        return handler_input.request_envelope.request.object_type == "SessionEndedRequest"
+        can = handler_input.request_envelope.request.object_type == "SessionEndedRequest"
+        print(f"SessionEndedRequestHandler.can_handle: {can}")
+        return can
 
     def handle(self, handler_input):
+        print("SessionEndedRequestHandler.handle called")
+        req = handler_input.request_envelope.request
+        print(f"Session ended reason: {getattr(req, 'reason', 'UNKNOWN')}")
+        print(f"Session ended error: {getattr(req, 'error', 'NONE')}")
         # Clean up session data if needed
         return handler_input.response_builder.response
 
@@ -199,6 +221,23 @@ sb.add_request_handler(FallbackIntentHandler())
 sb.add_request_handler(CancelOrStopHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
 
-lambda_handler = sb.lambda_handler()
-handler = lambda_handler  # Alias for Alexa-hosted skills
+# Wrapper to log all incoming requests
+def logged_handler(event, context):
+    """Log all incoming requests before processing."""
+    import json
+    print("=" * 80)
+    print("INCOMING REQUEST:")
+    print(f"Request type: {event.get('request', {}).get('type', 'UNKNOWN')}")
+    if event.get('request', {}).get('type') == 'IntentRequest':
+        print(f"Intent name: {event.get('request', {}).get('intent', {}).get('name', 'UNKNOWN')}")
+        print(f"Intent slots: {event.get('request', {}).get('intent', {}).get('slots', {})}")
+    print(f"Session new: {event.get('session', {}).get('new', 'UNKNOWN')}")
+    print(f"Full request: {json.dumps(event, indent=2, default=str)[:1000]}...")
+    print("=" * 80)
+    
+    # Call the actual handler
+    return sb.lambda_handler()(event, context)
+
+lambda_handler = logged_handler
+handler = logged_handler  # Alias for Alexa-hosted skills
 
