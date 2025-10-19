@@ -33,7 +33,9 @@
             "so {utterance}",
             "well {utterance}",
             "um {utterance}",
-            "uh {utterance}"
+            "uh {utterance}",
+            "what {utterance}",
+            "was {utterance}"
           ]
         },
         {
