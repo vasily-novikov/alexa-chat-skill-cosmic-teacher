@@ -12,11 +12,8 @@
             }
           ],
           "samples": [
-            "{utterance}",
             "sag mir {utterance}",
-            "ich will sagen {utterance}",
-            "ich sage {utterance}",
-            "{utterance} bitte"
+            "ich will sagen {utterance}"
           ]
         },
         {
