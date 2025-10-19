@@ -28,7 +28,12 @@
             "I wonder {utterance}",
             "tell me about {utterance}",
             "explain {utterance}",
-            "what is {utterance}"
+            "what is {utterance}",
+            "ok {utterance}",
+            "so {utterance}",
+            "well {utterance}",
+            "um {utterance}",
+            "uh {utterance}"
           ]
         },
         {

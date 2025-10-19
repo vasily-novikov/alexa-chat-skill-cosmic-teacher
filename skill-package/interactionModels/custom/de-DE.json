@@ -22,7 +22,12 @@
             "meine Frage ist {utterance}",
             "erkläre {utterance}",
             "was ist {utterance}",
-            "{utterance} bitte"
+            "{utterance} bitte",
+            "also {utterance}",
+            "na {utterance}",
+            "gut {utterance}",
+            "äh {utterance}",
+            "ähm {utterance}"
           ]
         },
         {
