@@ -12,8 +12,8 @@
             "default": {
               "lambda": {
                 "arn": "arn:aws:lambda:eu-west-1:387444652013:function:ask-cosmicteacher-default-default-1760781713991",
-                "lastModified": "2025-10-19T08:37:09.000+0000",
-                "revisionId": "38ae3f45-e284-4670-94fe-000620ecfee7"
+                "lastModified": "2025-10-19T09:57:34.000+0000",
+                "revisionId": "9e44d254-58dc-4616-8b12-9be08b880277"
               },
               "iamRole": "arn:aws:iam::387444652013:role/ask-lambda-CosmicTeacher-1760781713205"
             }
@@ -29,9 +29,9 @@
       },
       "code": {
         "default": {
-          "lastDeployHash": "lJiRO2VFBZZ5Nn/WxEASSoNdKcI="
+          "lastDeployHash": "FAQzbuEEvRyFwQUK3mXDnliIwyY="
         },
-        "lastDeployTimestamp": "2025-10-19T08:37:11.207Z"
+        "lastDeployTimestamp": "2025-10-19T09:57:35.455Z"
       }
     }
   }

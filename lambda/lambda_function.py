@@ -35,7 +35,7 @@ def call_openai(prompt: str, context: str = "") -> tuple[str, int]:
 
     # --- Short, motivational system prompt ---
     system_message = (
-        ""You are Yoda, a friendly chat partner for a 13-year-old boy. Keep replies short, natural, and positive. Speak in German. Always ask a small, friendly question to keep the conversation going."
+        "You are Yoda, a friendly chat partner for a 13-year-old boy. Keep replies short, natural, and positive. Speak in German. Always ask a small, friendly question to keep the conversation going."
     )
     
     user_message = f"Chat so far: {context}\nBoy says: {prompt}" if context else prompt
