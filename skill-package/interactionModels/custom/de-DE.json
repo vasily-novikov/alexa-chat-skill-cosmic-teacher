@@ -31,7 +31,15 @@
             "was {utterance}",
             "gibt {utterance}",
             "yoda {utterance}",
-            "ich meine {utterance}"
+            "ich meine {utterance}",
+            "ich {utterance}",
+            "du {utterance}",
+            "kannst {utterance}",
+            "könntest {utterance}",
+            "würdest {utterance}",
+            "möchtest {utterance}",
+            "wirst {utterance}",
+            "solltest {utterance}"
           ]
         },
         {

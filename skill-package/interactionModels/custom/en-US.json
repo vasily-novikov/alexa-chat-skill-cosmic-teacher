@@ -37,7 +37,14 @@
             "what {utterance}",
             "was {utterance}",
             "yoda {utterance}",
-            "I mean {utterance}"
+            "I mean {utterance}",
+            "I {utterance}",
+            "you {utterance}",
+            "can {utterance}",
+            "could {utterance}",
+            "would {utterance}",
+            "will {utterance}",
+            "should {utterance}"
           ]
         },
         {
