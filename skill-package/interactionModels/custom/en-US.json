@@ -13,7 +13,13 @@
           ],
           "samples": [
             "tell me {utterance}",
-            "I want to say {utterance}"
+            "I want to say {utterance}",
+            "say {utterance}",
+            "I say {utterance}",
+            "can you hear {utterance}",
+            "listen to this {utterance}",
+            "here is {utterance}",
+            "{utterance} please"
           ]
         },
         {
